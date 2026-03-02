@@ -215,28 +215,29 @@ const server = createServer(async (req, res) => {
                 imgBuffer = Buffer.from(await imgResp.arrayBuffer());
             }
 
-            // Resize to consistent size
-            const W = 1200;
-            const H = 630;
+            // Resize to 1:1 square (Instagram/Facebook optimal)
+            const W = 1080;
+            const H = 1080;
             const base = await sharp(imgBuffer)
                 .resize(W, H, { fit: 'cover', position: 'center' })
                 .toBuffer();
 
-            // Create gradient overlay (bottom 50% black fade)
+            // Create gradient overlay (strong bottom fade from 30%)
             const gradientSvg = `<svg width="${W}" height="${H}">
                 <defs>
                     <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
                         <stop offset="0%" stop-color="black" stop-opacity="0"/>
-                        <stop offset="40%" stop-color="black" stop-opacity="0"/>
-                        <stop offset="70%" stop-color="black" stop-opacity="0.6"/>
-                        <stop offset="100%" stop-color="black" stop-opacity="0.85"/>
+                        <stop offset="30%" stop-color="black" stop-opacity="0"/>
+                        <stop offset="60%" stop-color="black" stop-opacity="0.5"/>
+                        <stop offset="80%" stop-color="black" stop-opacity="0.75"/>
+                        <stop offset="100%" stop-color="black" stop-opacity="0.9"/>
                     </linearGradient>
                 </defs>
                 <rect width="${W}" height="${H}" fill="url(#fade)"/>
             </svg>`;
 
-            // Word wrap title
-            const maxCharsPerLine = 40;
+            // Word wrap title for center alignment
+            const maxCharsPerLine = 28;
             const words = title.split(' ');
             const lines = [];
             let currentLine = '';
@@ -249,27 +250,28 @@ const server = createServer(async (req, res) => {
                 }
             }
             if (currentLine.trim()) lines.push(currentLine.trim());
-            const maxLines = 4;
+            const maxLines = 5;
             if (lines.length > maxLines) {
                 lines.splice(maxLines);
                 lines[maxLines - 1] = lines[maxLines - 1].slice(0, -3) + '...';
             }
 
-            // Build text SVG
-            const fontSize = 42;
-            const lineHeight = 54;
+            // Build text SVG — large bold font, center aligned
+            const fontSize = 56;
+            const lineHeight = 72;
             const textBlockHeight = lines.length * lineHeight;
-            const startY = H - textBlockHeight - 35;
+            const startY = H - textBlockHeight - 50;
+            const centerX = W / 2;
 
             const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             const textLines = lines.map((line, i) =>
-                `<text x="50" y="${startY + (i * lineHeight)}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="bold" fill="white" filter="url(#shadow)">${esc(line)}</text>`
+                `<text x="${centerX}" y="${startY + (i * lineHeight)}" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="0.5" fill="white" filter="url(#shadow)">${esc(line)}</text>`
             ).join('\n');
 
             const textSvg = `<svg width="${W}" height="${H}">
                 <defs>
-                    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
-                        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="black" flood-opacity="0.8"/>
+                    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+                        <feDropShadow dx="0" dy="3" stdDeviation="6" flood-color="black" flood-opacity="0.9"/>
                     </filter>
                 </defs>
                 ${textLines}
@@ -281,7 +283,7 @@ const server = createServer(async (req, res) => {
                     { input: Buffer.from(gradientSvg), top: 0, left: 0 },
                     { input: Buffer.from(textSvg), top: 0, left: 0 },
                 ])
-                .jpeg({ quality: 90 })
+                .jpeg({ quality: 95 })
                 .toBuffer();
 
             res.writeHead(200, {
