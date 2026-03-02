@@ -4,6 +4,7 @@
  */
 
 import { createServer } from 'http';
+import sharp from 'sharp';
 
 const PORT = process.env.PORT || 3000;
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
@@ -178,6 +179,105 @@ const server = createServer(async (req, res) => {
         } catch (err) {
             res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders });
             res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+        return;
+    }
+
+    // Image overlay endpoint
+    if (url.pathname === '/api/overlay-image') {
+        const imageUrl = url.searchParams.get('url');
+        const title = url.searchParams.get('title');
+        if (!imageUrl || !title) {
+            res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
+            res.end(JSON.stringify({ error: 'Missing url or title parameter' }));
+            return;
+        }
+
+        try {
+            // Download image
+            const imgResp = await fetch(imageUrl, { headers: { 'User-Agent': UA } });
+            if (!imgResp.ok) throw new Error(`Image fetch failed: ${imgResp.status}`);
+            const imgBuffer = Buffer.from(await imgResp.arrayBuffer());
+
+            // Resize to consistent size
+            const W = 1200;
+            const H = 630;
+            const base = await sharp(imgBuffer)
+                .resize(W, H, { fit: 'cover', position: 'center' })
+                .toBuffer();
+
+            // Create gradient overlay (bottom 50% black fade)
+            const gradientSvg = `<svg width="${W}" height="${H}">
+                <defs>
+                    <linearGradient id="fade" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="black" stop-opacity="0"/>
+                        <stop offset="40%" stop-color="black" stop-opacity="0"/>
+                        <stop offset="70%" stop-color="black" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="black" stop-opacity="0.85"/>
+                    </linearGradient>
+                </defs>
+                <rect width="${W}" height="${H}" fill="url(#fade)"/>
+            </svg>`;
+
+            // Word wrap title
+            const maxCharsPerLine = 40;
+            const words = title.split(' ');
+            const lines = [];
+            let currentLine = '';
+            for (const word of words) {
+                if ((currentLine + ' ' + word).trim().length > maxCharsPerLine && currentLine) {
+                    lines.push(currentLine.trim());
+                    currentLine = word;
+                } else {
+                    currentLine = currentLine ? currentLine + ' ' + word : word;
+                }
+            }
+            if (currentLine.trim()) lines.push(currentLine.trim());
+            const maxLines = 4;
+            if (lines.length > maxLines) {
+                lines.splice(maxLines);
+                lines[maxLines - 1] = lines[maxLines - 1].slice(0, -3) + '...';
+            }
+
+            // Build text SVG
+            const fontSize = 42;
+            const lineHeight = 54;
+            const textBlockHeight = lines.length * lineHeight;
+            const startY = H - textBlockHeight - 35;
+
+            const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            const textLines = lines.map((line, i) =>
+                `<text x="50" y="${startY + (i * lineHeight)}" font-family="Arial, Helvetica, sans-serif" font-size="${fontSize}" font-weight="bold" fill="white" filter="url(#shadow)">${esc(line)}</text>`
+            ).join('\n');
+
+            const textSvg = `<svg width="${W}" height="${H}">
+                <defs>
+                    <filter id="shadow" x="-5%" y="-5%" width="110%" height="110%">
+                        <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="black" flood-opacity="0.8"/>
+                    </filter>
+                </defs>
+                ${textLines}
+            </svg>`;
+
+            // Composite: base image + gradient + text
+            const result = await sharp(base)
+                .composite([
+                    { input: Buffer.from(gradientSvg), top: 0, left: 0 },
+                    { input: Buffer.from(textSvg), top: 0, left: 0 },
+                ])
+                .jpeg({ quality: 90 })
+                .toBuffer();
+
+            res.writeHead(200, {
+                'Content-Type': 'image/jpeg',
+                'Content-Length': result.length,
+                'Cache-Control': 'public, max-age=3600',
+                ...corsHeaders,
+            });
+            res.end(result);
+        } catch (err) {
+            res.writeHead(500, { 'Content-Type': 'application/json', ...corsHeaders });
+            res.end(JSON.stringify({ error: err.message }));
         }
         return;
     }
