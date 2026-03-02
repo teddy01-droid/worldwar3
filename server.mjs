@@ -183,21 +183,37 @@ const server = createServer(async (req, res) => {
         return;
     }
 
-    // Image overlay endpoint
+    // Image overlay endpoint (GET with url param OR POST with base64 body)
     if (url.pathname === '/api/overlay-image') {
-        const imageUrl = url.searchParams.get('url');
-        const title = url.searchParams.get('title');
-        if (!imageUrl || !title) {
-            res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
-            res.end(JSON.stringify({ error: 'Missing url or title parameter' }));
-            return;
-        }
-
         try {
-            // Download image
-            const imgResp = await fetch(imageUrl, { headers: { 'User-Agent': UA } });
-            if (!imgResp.ok) throw new Error(`Image fetch failed: ${imgResp.status}`);
-            const imgBuffer = Buffer.from(await imgResp.arrayBuffer());
+            let imgBuffer;
+            let title;
+
+            if (req.method === 'POST') {
+                // POST: accept JSON body with base64 image and title
+                const chunks = [];
+                for await (const chunk of req) chunks.push(chunk);
+                const body = JSON.parse(Buffer.concat(chunks).toString());
+                if (!body.image || !body.title) {
+                    res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
+                    res.end(JSON.stringify({ error: 'POST body needs image (base64) and title' }));
+                    return;
+                }
+                imgBuffer = Buffer.from(body.image, 'base64');
+                title = body.title;
+            } else {
+                // GET: accept url and title as query params
+                const imageUrl = url.searchParams.get('url');
+                title = url.searchParams.get('title');
+                if (!imageUrl || !title) {
+                    res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
+                    res.end(JSON.stringify({ error: 'Missing url or title query parameter' }));
+                    return;
+                }
+                const imgResp = await fetch(imageUrl, { headers: { 'User-Agent': UA } });
+                if (!imgResp.ok) throw new Error(`Image fetch failed: ${imgResp.status}`);
+                imgBuffer = Buffer.from(await imgResp.arrayBuffer());
+            }
 
             // Resize to consistent size
             const W = 1200;
