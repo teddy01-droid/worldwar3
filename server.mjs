@@ -67,6 +67,24 @@ function extractDesc(xml) {
     return d.length > 300 ? d.slice(0, 297) + '...' : d;
 }
 
+function extractImage(xml) {
+    // 1. <media:content url="...">
+    let m = xml.match(/<media:content[^>]+url=["']([^"']+)["']/i);
+    if (m) return m[1];
+    // 2. <media:thumbnail url="...">
+    m = xml.match(/<media:thumbnail[^>]+url=["']([^"']+)["']/i);
+    if (m) return m[1];
+    // 3. <enclosure url="..." type="image/...">
+    m = xml.match(/<enclosure[^>]+url=["']([^"']+)["'][^>]+type=["']image\/[^"']+["']/i);
+    if (m) return m[1];
+    m = xml.match(/<enclosure[^>]+type=["']image\/[^"']+["'][^>]+url=["']([^"']+)["']/i);
+    if (m) return m[1];
+    // 4. <img src="..."> in description/content
+    m = xml.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (m) return m[1];
+    return null;
+}
+
 async function fetchFeed(feed, signal) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), FEED_TIMEOUT);
@@ -97,7 +115,8 @@ async function fetchFeed(feed, signal) {
             const pd = pubStr ? new Date(pubStr) : null;
             const ts = pd && !isNaN(pd.getTime()) ? pd.getTime() : null;
             if (!ts || (now - ts) > MAX_AGE) continue;
-            items.push({ title, summary: extractDesc(b), source: feed.name, publishedAt: new Date(ts).toISOString(), link });
+            const image = extractImage(b);
+            items.push({ title, summary: extractDesc(b), source: feed.name, publishedAt: new Date(ts).toISOString(), link, image });
         }
         return items;
     } catch { return []; }
