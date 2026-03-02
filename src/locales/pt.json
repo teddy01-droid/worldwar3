@@ -1175,7 +1175,7 @@
         "flow": "Fluxo",
         "regime": "Regime",
         "btcTrend": "BTC Trend",
-        "hashRate": "Hash Rate",
+        "hashRate": "Network Power",
         "mining": "Mining",
         "fearGreed": "Fear &amp; Greed"
       }

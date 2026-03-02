@@ -1326,7 +1326,7 @@
         "flow": "资金流",
         "regime": "市场环境",
         "btcTrend": "BTC趋势",
-        "hashRate": "Hash Rate",
+        "hashRate": "Network Power",
         "mining": "挖矿",
         "fearGreed": "恐惧 &amp; 贪婪"
       }

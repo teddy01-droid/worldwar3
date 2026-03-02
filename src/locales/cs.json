@@ -1411,7 +1411,7 @@
         "flow": "Tok",
         "regime": "Režim",
         "btcTrend": "Trend BTC",
-        "hashRate": "Hash Rate",
+        "hashRate": "Network Power",
         "mining": "Těžba",
         "fearGreed": "Strach a chamtivost"
       }

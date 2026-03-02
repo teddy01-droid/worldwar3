@@ -1373,7 +1373,7 @@
         "flow": "Fluss",
         "regime": "Regime",
         "btcTrend": "BTC-Trend",
-        "hashRate": "Hash Rate",
+        "hashRate": "Network Power",
         "mining": "Mining",
         "fearGreed": "Angst &amp; Gier"
       }

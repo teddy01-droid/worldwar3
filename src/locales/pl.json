@@ -1320,7 +1320,7 @@
         "flow": "Przepływ",
         "regime": "Reżim",
         "btcTrend": "Trend BTC",
-        "hashRate": "Hash Rate",
+        "hashRate": "Network Power",
         "mining": "Wydobycie",
         "fearGreed": "Strach &amp; Chciwość"
       }
