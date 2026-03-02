@@ -254,7 +254,7 @@ financial, military, environmental, humanitarian, and technology domains.
 
 ---
 
-#### 11 — blockchain.info (Bitcoin Hash Rate)
+#### 11 — blockchain.info (Bitcoin Network Power)
 
 | Field | Value |
 |---|---|
@@ -267,7 +267,7 @@ financial, military, environmental, humanitarian, and technology domains.
 | **Frontend Services** | `MacroService` → MacroSignals |
 | **Degradation** | Hash-rate signal omitted from aggregate; composite score adjusted |
 | **Tier Needed** | Public |
-| **Quirks** | Used specifically for BTC network hash-rate as a macro signal. Endpoint: `/q/hashrate`. |
+| **Quirks** | Used specifically for BTC network hash-rate as a macro signal. Endpoint: `/q/networkpower`. |
 
 ---
 
@@ -886,7 +886,7 @@ graph TD
     M1[FRED<br/>Treasury yields, rates] --> MS[/api/macro-signals<br/>Composite Builder]
     M2[CoinGecko<br/>Crypto market cap] --> MS
     M3[alternative.me<br/>Fear & Greed] --> MS
-    M4[blockchain.info<br/>BTC hash rate] --> MS
+    M4[blockchain.info<br/>BTC Network Power] --> MS
     MS --> MSvc[MacroService]
     MSvc --> MP[MacroSignalsPanel]
 ```

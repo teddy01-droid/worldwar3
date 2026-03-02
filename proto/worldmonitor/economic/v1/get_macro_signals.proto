@@ -35,7 +35,7 @@ message MacroSignals {
   MacroRegimeSignal macro_regime = 3;
   // BTC price vs moving averages and VWAP.
   TechnicalTrendSignal technical_trend = 4;
-  // Bitcoin mining hash rate momentum.
+  // Bitcoin mining network power momentum.
   HashRateSignal hash_rate = 5;
   // Mining profitability estimate.
   MiningCostSignal mining_cost = 6;
@@ -91,11 +91,11 @@ message TechnicalTrendSignal {
   repeated double sparkline = 7;
 }
 
-// HashRateSignal tracks Bitcoin hash rate momentum.
+// HashRateSignal tracks Bitcoin network power momentum.
 message HashRateSignal {
   // "GROWING", "DECLINING", "STABLE", or "UNKNOWN".
   string status = 1;
-  // Hash rate change over 30 days as percentage.
+  // Network power change over 30 days as percentage.
   optional double change_30d = 2;
 }
 
