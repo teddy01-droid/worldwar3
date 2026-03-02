@@ -265,7 +265,7 @@ const server = createServer(async (req, res) => {
 
             const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
             const textLines = lines.map((line, i) =>
-                `<text x="${centerX}" y="${startY + (i * lineHeight)}" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="0.5" fill="white" filter="url(#shadow)">${esc(line)}</text>`
+                `<text x="${centerX}" y="${startY + (i * lineHeight)}" text-anchor="middle" font-family="DejaVu Sans, Liberation Sans, Noto Sans, FreeSans, sans-serif" font-size="${fontSize}" font-weight="700" letter-spacing="0.5" fill="white" filter="url(#shadow)">${esc(line)}</text>`
             ).join('\n');
 
             const textSvg = `<svg width="${W}" height="${H}">
