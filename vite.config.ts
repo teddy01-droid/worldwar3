@@ -300,50 +300,50 @@ function sebufApiPlugin(): Plugin {
       givingServerMod, givingHandlerMod,
       tradeServerMod, tradeHandlerMod,
     ] = await Promise.all([
-        import('./server/router'),
-        import('./server/cors'),
-        import('./server/error-mapper'),
-        import('./src/generated/server/worldmonitor/seismology/v1/service_server'),
-        import('./server/worldmonitor/seismology/v1/handler'),
-        import('./src/generated/server/worldmonitor/wildfire/v1/service_server'),
-        import('./server/worldmonitor/wildfire/v1/handler'),
-        import('./src/generated/server/worldmonitor/climate/v1/service_server'),
-        import('./server/worldmonitor/climate/v1/handler'),
-        import('./src/generated/server/worldmonitor/prediction/v1/service_server'),
-        import('./server/worldmonitor/prediction/v1/handler'),
-        import('./src/generated/server/worldmonitor/displacement/v1/service_server'),
-        import('./server/worldmonitor/displacement/v1/handler'),
-        import('./src/generated/server/worldmonitor/aviation/v1/service_server'),
-        import('./server/worldmonitor/aviation/v1/handler'),
-        import('./src/generated/server/worldmonitor/research/v1/service_server'),
-        import('./server/worldmonitor/research/v1/handler'),
-        import('./src/generated/server/worldmonitor/unrest/v1/service_server'),
-        import('./server/worldmonitor/unrest/v1/handler'),
-        import('./src/generated/server/worldmonitor/conflict/v1/service_server'),
-        import('./server/worldmonitor/conflict/v1/handler'),
-        import('./src/generated/server/worldmonitor/maritime/v1/service_server'),
-        import('./server/worldmonitor/maritime/v1/handler'),
-        import('./src/generated/server/worldmonitor/cyber/v1/service_server'),
-        import('./server/worldmonitor/cyber/v1/handler'),
-        import('./src/generated/server/worldmonitor/economic/v1/service_server'),
-        import('./server/worldmonitor/economic/v1/handler'),
-        import('./src/generated/server/worldmonitor/infrastructure/v1/service_server'),
-        import('./server/worldmonitor/infrastructure/v1/handler'),
-        import('./src/generated/server/worldmonitor/market/v1/service_server'),
-        import('./server/worldmonitor/market/v1/handler'),
-        import('./src/generated/server/worldmonitor/news/v1/service_server'),
-        import('./server/worldmonitor/news/v1/handler'),
-        import('./src/generated/server/worldmonitor/intelligence/v1/service_server'),
-        import('./server/worldmonitor/intelligence/v1/handler'),
-        import('./src/generated/server/worldmonitor/military/v1/service_server'),
-        import('./server/worldmonitor/military/v1/handler'),
-        import('./src/generated/server/worldmonitor/positive_events/v1/service_server'),
-        import('./server/worldmonitor/positive-events/v1/handler'),
-        import('./src/generated/server/worldmonitor/giving/v1/service_server'),
-        import('./server/worldmonitor/giving/v1/handler'),
-        import('./src/generated/server/worldmonitor/trade/v1/service_server'),
-        import('./server/worldmonitor/trade/v1/handler'),
-      ]);
+      import('./server/router'),
+      import('./server/cors'),
+      import('./server/error-mapper'),
+      import('./src/generated/server/worldmonitor/seismology/v1/service_server'),
+      import('./server/worldmonitor/seismology/v1/handler'),
+      import('./src/generated/server/worldmonitor/wildfire/v1/service_server'),
+      import('./server/worldmonitor/wildfire/v1/handler'),
+      import('./src/generated/server/worldmonitor/climate/v1/service_server'),
+      import('./server/worldmonitor/climate/v1/handler'),
+      import('./src/generated/server/worldmonitor/prediction/v1/service_server'),
+      import('./server/worldmonitor/prediction/v1/handler'),
+      import('./src/generated/server/worldmonitor/displacement/v1/service_server'),
+      import('./server/worldmonitor/displacement/v1/handler'),
+      import('./src/generated/server/worldmonitor/aviation/v1/service_server'),
+      import('./server/worldmonitor/aviation/v1/handler'),
+      import('./src/generated/server/worldmonitor/research/v1/service_server'),
+      import('./server/worldmonitor/research/v1/handler'),
+      import('./src/generated/server/worldmonitor/unrest/v1/service_server'),
+      import('./server/worldmonitor/unrest/v1/handler'),
+      import('./src/generated/server/worldmonitor/conflict/v1/service_server'),
+      import('./server/worldmonitor/conflict/v1/handler'),
+      import('./src/generated/server/worldmonitor/maritime/v1/service_server'),
+      import('./server/worldmonitor/maritime/v1/handler'),
+      import('./src/generated/server/worldmonitor/cyber/v1/service_server'),
+      import('./server/worldmonitor/cyber/v1/handler'),
+      import('./src/generated/server/worldmonitor/economic/v1/service_server'),
+      import('./server/worldmonitor/economic/v1/handler'),
+      import('./src/generated/server/worldmonitor/infrastructure/v1/service_server'),
+      import('./server/worldmonitor/infrastructure/v1/handler'),
+      import('./src/generated/server/worldmonitor/market/v1/service_server'),
+      import('./server/worldmonitor/market/v1/handler'),
+      import('./src/generated/server/worldmonitor/news/v1/service_server'),
+      import('./server/worldmonitor/news/v1/handler'),
+      import('./src/generated/server/worldmonitor/intelligence/v1/service_server'),
+      import('./server/worldmonitor/intelligence/v1/handler'),
+      import('./src/generated/server/worldmonitor/military/v1/service_server'),
+      import('./server/worldmonitor/military/v1/handler'),
+      import('./src/generated/server/worldmonitor/positive_events/v1/service_server'),
+      import('./server/worldmonitor/positive-events/v1/handler'),
+      import('./src/generated/server/worldmonitor/giving/v1/service_server'),
+      import('./server/worldmonitor/giving/v1/handler'),
+      import('./src/generated/server/worldmonitor/trade/v1/service_server'),
+      import('./server/worldmonitor/trade/v1/handler'),
+    ]);
 
     const serverOptions = { onError: errorMod.mapErrorToResponse };
     const allRoutes = [
@@ -598,6 +598,148 @@ function rssProxyPlugin(): Plugin {
   };
 }
 
+function worldWarNewsPlugin(): Plugin {
+  const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
+  const FEED_TIMEOUT = 8_000;
+  const OVERALL_DEADLINE = 25_000;
+  const MAX_AGE = 24 * 60 * 60 * 1000;
+  const BATCH = 10;
+
+  const WAR_FEEDS = [
+    { name: 'BBC World', url: 'https://feeds.bbci.co.uk/news/world/rss.xml' },
+    { name: 'Al Jazeera', url: 'https://www.aljazeera.com/xml/rss/all.xml' },
+    { name: 'Reuters World', url: `https://news.google.com/rss/search?q=${encodeURIComponent('site:reuters.com world war conflict')}&hl=en-US&gl=US&ceid=US:en` },
+    { name: 'Guardian World', url: 'https://www.theguardian.com/world/rss' },
+    { name: 'Defense One', url: 'https://www.defenseone.com/rss/all/' },
+    { name: 'Breaking Defense', url: 'https://breakingdefense.com/feed/' },
+    { name: 'The War Zone', url: 'https://www.twz.com/feed' },
+    { name: 'USNI News', url: 'https://news.usni.org/feed' },
+    { name: 'Military Times', url: 'https://www.militarytimes.com/arc/outboundfeeds/rss/?outputType=xml' },
+    { name: 'Defense News', url: 'https://www.defensenews.com/arc/outboundfeeds/rss/?outputType=xml' },
+    { name: 'Task & Purpose', url: 'https://taskandpurpose.com/feed/' },
+    { name: 'Kyiv Independent', url: `https://news.google.com/rss/search?q=${encodeURIComponent('site:kyivindependent.com')}&hl=en-US&gl=US&ceid=US:en` },
+    { name: 'Foreign Policy', url: 'https://foreignpolicy.com/feed/' },
+    { name: 'Crisis Group', url: 'https://www.crisisgroup.org/rss' },
+    { name: 'Atlantic Council', url: 'https://www.atlanticcouncil.org/feed/' },
+    { name: 'World War News', url: `https://news.google.com/rss/search?q=${encodeURIComponent('(war OR invasion OR airstrike OR missile attack OR military operation) when:1d')}&hl=en-US&gl=US&ceid=US:en` },
+    { name: 'Conflict Updates', url: `https://news.google.com/rss/search?q=${encodeURIComponent('(armed conflict OR ceasefire OR frontline OR casualties OR NATO) when:1d')}&hl=en-US&gl=US&ceid=US:en` },
+  ];
+
+  const WAR_KW = [
+    'war', 'invasion', 'airstrike', 'air strike', 'drone strike', 'missile', 'bombing', 'shelling', 'artillery',
+    'troops', 'soldiers', 'military', 'army', 'navy', 'casualties', 'killed', 'wounded', 'dead',
+    'frontline', 'battlefield', 'combat', 'offensive', 'counteroffensive', 'siege', 'blockade', 'occupation',
+    'nuclear', 'warhead', 'ballistic', 'fighter jet', 'tank', 'submarine', 'warship', 'aircraft carrier',
+    'nato', 'pentagon', 'defense ministry', 'armed forces', 'militia', 'rebel', 'insurgent',
+    'ceasefire', 'sanctions', 'embargo', 'escalation', 'retaliation', 'deterrence',
+    'ukraine', 'russia', 'gaza', 'israel', 'hamas', 'hezbollah', 'taiwan', 'north korea', 'yemen', 'houthi',
+    'syria', 'iran', 'iraq', 'afghanistan', 'sudan', 'myanmar', 'libya', 'somalia', 'congo',
+    'conflict', 'hostilities', 'warfare', 'defense', 'defence', 'coup', 'civil war', 'genocide',
+  ];
+
+  let cache: { data: any; ts: number } = { data: null, ts: 0 };
+
+  function extractTag(xml: string, tag: string): string {
+    const cdataRe = new RegExp(`<${tag}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/${tag}>`, 'i');
+    const m1 = xml.match(cdataRe);
+    if (m1) return m1[1].trim();
+    const plainRe = new RegExp(`<${tag}[^>]*>([^<]*)<\\/${tag}>`, 'i');
+    const m2 = xml.match(plainRe);
+    return m2 ? m2[1].trim().replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'") : '';
+  }
+
+  function extractDesc(xml: string): string {
+    let d = extractTag(xml, 'description') || extractTag(xml, 'summary');
+    if (!d) { const m = xml.match(/<content:encoded[^>]*>\s*<!\[CDATA\[([\s\S]*?)\]\]>\s*<\/content:encoded>/i); if (m) d = m[1].trim(); }
+    if (!d) return '';
+    d = d.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    return d.length > 300 ? d.slice(0, 297) + '...' : d;
+  }
+
+  return {
+    name: 'world-war-news',
+    configureServer(server) {
+      server.middlewares.use(async (req, res, next) => {
+        if (!req.url?.startsWith('/api/world-war-news')) return next();
+
+        const url = new URL(req.url, 'http://localhost');
+        const rawLimit = parseInt(url.searchParams.get('limit') ?? '', 10);
+        const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 50;
+
+        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Access-Control-Allow-Origin', '*');
+
+        // Cache check
+        if (cache.data && (Date.now() - cache.ts) < 600_000) {
+          const out = { ...cache.data, articles: cache.data.articles.slice(0, limit), count: Math.min(cache.data.articles.length, limit) };
+          res.end(JSON.stringify(out));
+          return;
+        }
+
+        try {
+          const now = Date.now();
+          const dc = new AbortController();
+          const dt = setTimeout(() => dc.abort(), OVERALL_DEADLINE);
+          let all: any[] = [];
+
+          for (let i = 0; i < WAR_FEEDS.length; i += BATCH) {
+            if (dc.signal.aborted) break;
+            const batch = WAR_FEEDS.slice(i, i + BATCH);
+            const settled = await Promise.allSettled(batch.map(async (feed) => {
+              const c = new AbortController();
+              const t = setTimeout(() => c.abort(), FEED_TIMEOUT);
+              const onAbort = () => c.abort();
+              dc.signal.addEventListener('abort', onAbort, { once: true });
+              try {
+                const r = await fetch(feed.url, { headers: { 'User-Agent': UA, 'Accept': 'application/rss+xml, application/xml, text/xml, */*' }, signal: c.signal });
+                if (!r.ok) return [];
+                const xml = await r.text();
+                const items: any[] = [];
+                const itemRe = /<item[\s>]([\s\S]*?)<\/item>/gi;
+                const entryRe = /<entry[\s>]([\s\S]*?)<\/entry>/gi;
+                let matches = [...xml.matchAll(itemRe)];
+                const isAtom = matches.length === 0;
+                if (isAtom) matches = [...xml.matchAll(entryRe)];
+                for (const m of matches.slice(0, 10)) {
+                  const b = m[1];
+                  const title = extractTag(b, 'title');
+                  if (!title) continue;
+                  let link = '';
+                  if (isAtom) { const h = b.match(/<link[^>]+href=["']([^"']+)["']/); link = h?.[1] ?? ''; }
+                  else link = extractTag(b, 'link');
+                  const pubStr = isAtom ? (extractTag(b, 'published') || extractTag(b, 'updated')) : extractTag(b, 'pubDate');
+                  const pd = pubStr ? new Date(pubStr) : null;
+                  const ts = pd && !isNaN(pd.getTime()) ? pd.getTime() : null;
+                  if (!ts || (now - ts) > MAX_AGE) continue;
+                  const summary = extractDesc(b);
+                  items.push({ title, summary, source: feed.name, publishedAt: new Date(ts).toISOString(), link });
+                }
+                return items;
+              } finally { clearTimeout(t); dc.signal.removeEventListener('abort', onAbort); }
+            }));
+            for (const r of settled) { if (r.status === 'fulfilled') all.push(...r.value); }
+          }
+          clearTimeout(dt);
+
+          all = all.filter(a => { const t = `${a.title} ${a.summary}`.toLowerCase(); return WAR_KW.some(kw => t.includes(kw)); });
+          const seen = new Map<string, boolean>();
+          all = all.filter(a => { const k = a.title.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim().slice(0, 60); if (seen.has(k)) return false; seen.set(k, true); return true; });
+          all.sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+
+          const data = { success: true, count: all.length, generatedAt: new Date().toISOString(), articles: all };
+          cache = { data, ts: Date.now() };
+
+          const out = { ...data, articles: data.articles.slice(0, limit), count: Math.min(data.articles.length, limit) };
+          res.end(JSON.stringify(out));
+        } catch (err: any) {
+          res.statusCode = 500;
+          res.end(JSON.stringify({ success: false, error: err.message }));
+        }
+      });
+    },
+  };
+}
+
 function youtubeLivePlugin(): Plugin {
   return {
     name: 'youtube-live',
@@ -672,6 +814,7 @@ export default defineConfig({
     htmlVariantPlugin(),
     polymarketPlugin(),
     rssProxyPlugin(),
+    worldWarNewsPlugin(),
     youtubeLivePlugin(),
     sebufApiPlugin(),
     brotliPrecompressPlugin(),
